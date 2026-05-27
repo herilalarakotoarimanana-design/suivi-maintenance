@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Suivi Maintenance">
+<meta name="theme-color" content="#0f172a">
+<title>Suivi Maintenance</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f172a;
+    --bg2: #1e293b;
+    --bg3: #334155;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --success: #22c55e;
+    --error: #ef4444;
+    --border: #334155;
+    --radius: 12px;
+    --font-mono: 'Space Mono', monospace;
+    --font-main: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ── LOGIN SCREEN ── */
+  #loginScreen {
+    background: var(--bg);
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #loginScreen::before {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+  }
+  #loginScreen::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%);
+    bottom: -80px; left: -80px;
+    pointer-events: none;
+  }
+
+  .login-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--accent), #c2410c);
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 24px rgba(249,115,22,0.3);
+  }
+
+  .logo-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo-sub {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+    margin-top: 4px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+  }
+
+  select, input[type="password"], input[type="text"], input[type="date"], textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 15px;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+
+  select:focus, input:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  .btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #c2410c);
+    color: white;
+    box-shadow: 0 4px 16px rgba(249,115,22,0.35);
+  }
+  .btn-primary:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(249,115,22,0.2); }
+  .btn-primary:disabled { opacity: 0.6; transform: none; }
+
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-secondary:active { transform: scale(0.98); }
+
+  .btn-success {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: white;
+    box-shadow: 0 4px 16px rgba(34,197,94,0.25);
+  }
+  .btn-success:active { transform: scale(0.98); }
+  .btn-success:disabled { opacity: 0.6; }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--error);
+    border: 1.5px solid var(--error);
+    padding: 8px 14px;
+    width: auto;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-icon { font-size: 20px; }
+  .header-title { font-size: 16px; font-weight: 800; }
+  .header-tech {
+    font-size: 11px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    transition: all 0.2s;
+  }
+  .btn-logout:active { background: var(--bg3); }
+
+  /* ── MAIN CONTENT ── */
+  .main-content { flex: 1; padding: 20px; overflow-y: auto; }
+
+  .section-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: var(--font-mono);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Search combobox */
+  .search-combo { position: relative; }
+  .search-combo input { padding-right: 40px; }
+  .search-combo .clear-btn {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: var(--text2); font-size: 16px;
+    cursor: pointer; padding: 4px;
+    display: none;
+  }
+  .search-combo input:not(:placeholder-shown) + .clear-btn { display: block; }
+
+  .dropdown-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--bg3);
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 200;
+    display: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .dropdown-list.open { display: block; }
+  .dropdown-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .dropdown-item:last-child { border-bottom: none; }
+  .dropdown-item:active, .dropdown-item.highlighted { background: rgba(249,115,22,0.15); color: var(--accent); }
+
+  /* ── PANNES LIST ── */
+  .pannes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .badge {
+    background: var(--accent);
+    color: white;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  .panne-item {
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+    position: relative;
+  }
+
+  .panne-row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .panne-salle { font-size: 14px; font-weight: 700; }
+  .panne-machine {
+    font-size: 11px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    background: rgba(249,115,22,0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .panne-desc { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+  .panne-meta {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+    display: flex;
+    gap: 12px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--text2);
+  }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 90vw;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--error); color: var(--error); }
+  .toast.info { border-color: var(--accent); color: var(--accent); }
+
+  /* Spinner */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* Install banner */
+  .install-banner {
+    background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(194,65,12,0.1));
+    border: 1px solid rgba(249,115,22,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .install-text { font-size: 13px; color: var(--text2); flex: 1; }
+  .install-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .btn-install {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: var(--font-main);
+  }
+
+  .scroll-top {
+    position: fixed;
+    bottom: 80px; right: 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px; height: 44px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(249,115,22,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+  .scroll-top.visible { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-card">
+    <div class="logo-area">
+      <div class="logo-icon">🔧</div>
+      <div class="logo-title">Suivi Maintenance</div>
+      <div class="logo-sub">Connexion technicien</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Technicien</label>
+      <select id="selTechnicien">
+        <option value="">— Sélectionner —</option>
+        <option value="LUCAS">LUCAS</option>
+        <option value="MAMY">MAMY</option>
+        <option value="HERY">HERY</option>
+        <option value="TIANA">TIANA</option>
+        <option value="SANTATRA">SANTATRA</option>
+        <option value="TOKY">TOKY</option>
+        <option value="LANDRY">LANDRY</option>
+        <option value="NATHAN">NATHAN</option>
+        <option value="TSIORY">TSIORY</option>
+        <option value="ANDO">ANDO</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Mot de passe</label>
+      <input type="password" id="inpPassword" placeholder="••••" maxlength="10">
+    </div>
+
+    <button class="btn btn-primary" onclick="doLogin()">Se connecter</button>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN SCREEN ══════════════ -->
+<div id="mainScreen" class="screen">
+  <div class="app-header">
+    <div class="header-left">
+      <span class="header-icon">🔧</span>
+      <div>
+        <div class="header-title">Suivi Maintenance</div>
+        <div class="header-tech" id="headerTech">— TECHNICIEN —</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Déco.</button>
+  </div>
+
+  <div class="main-content" id="mainContent">
+
+    <!-- Install banner (shown if PWA installable) -->
+    <div class="install-banner" id="installBanner" style="display:none">
+      <div class="install-text">
+        <strong>📲 Installer comme app</strong>
+        Accès rapide depuis l'écran d'accueil
+      </div>
+      <button class="btn-install" id="btnInstall">Installer</button>
+    </div>
+
+    <!-- FORMULAIRE -->
+    <div class="section-card">
+      <div class="section-title">⚡ Nouvelle intervention</div>
+
+      <div class="row-2">
+        <div class="form-group">
+          <label class="form-label">Catégorie</label>
+          <select id="selCategorie">
+            <option value="">—</option>
+            <option value="SHOP">SHOP</option>
+            <option value="BAR">BAR</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="inpDate">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Salle</label>
+        <div class="search-combo" id="salleCombo">
+          <input type="text" id="inpSalle" placeholder="Rechercher une salle..." autocomplete="off" autocorrect="off">
+          <button class="clear-btn" onclick="clearSalle()">✕</button>
+          <div class="dropdown-list" id="salleDropdown"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Machine</label>
+        <div class="search-combo" id="machineCombo">
+          <input type="text" id="inpMachine" placeholder="Rechercher une machine..." autocomplete="off">
+          <button class="clear-btn" onclick="clearMachine()">✕</button>
+          <div class="dropdown-list" id="machineDropdown"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description de la panne</label>
+        <textarea id="inpDescription" placeholder="Décrivez la panne ou l'intervention..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Remarque (optionnel)</label>
+        <textarea id="inpRemarque" placeholder="Remarques supplémentaires..." style="min-height:60px"></textarea>
+      </div>
+
+      <button class="btn btn-secondary" onclick="ajouterPanne()">➕ Ajouter à la liste</button>
+    </div>
+
+    <!-- LISTE DES PANNES -->
+    <div class="section-card">
+      <div class="pannes-header">
+        <div class="section-title" style="margin-bottom:0">📋 Interventions</div>
+        <span class="badge" id="badgeCount">0</span>
+      </div>
+
+      <div id="pannesList">
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <p>Aucune intervention ajoutée</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <button class="btn btn-success" id="btnEnregistrer" onclick="enregistrerTout()">
+        ✅ Valider et Enregistrer
+      </button>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /mainScreen -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTop" onclick="scrollToTop()">↑</button>
+
+<script>
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+const USERS = {
+  LUCAS: "1234", MAMY: "1234", HERY: "1804",
+  TIANA: "2508", SANTATRA: "1470", TOKY: "0586",
+  LANDRY: "2026", NATHAN: "1234", TSIORY: "1363", ANDO: "1997"
+};
+
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxcKm3tI6Pr3fsTlszBlaecHWsJA_x22S_5nzE_vlXi6Dkug__IoDNcmCJgsaqtpPxx/exec";
+
+const SALLES = [
+  "101 67 GRAND","102 67 PETIT","103 ANOSIBE 1","104 BESARETY","105 MANJAKARAY",
+  "106 ANALAKELY","108 PAULBERT","IMERITSIATOSIKA","109 AMBANIDIA","110 TALATAMATY",
+  "111 ANDRAVOAHANGY 1","201 AMPASAPITO","202 ANDOHARANOFOTSY","203 MAHAZO","204 IVATO",
+  "205 ITAOSY","206 67 CENAM","207 67 POSTE","208 ISOTRY","209 ANOSIBE 2",
+  "210 SOARANO","211 TANJOMBATO","212 ANOSIZATO","213 NAMONTANA","214 AMPASIKA",
+  "215 AMPITATAFIKA","216 NATURA","217 ANKAZOMANGA","218 TANJOMBATO 2","219 AMBOHIBAO",
+  "220 AMBOHIDROA","221 ANDAVAMAMBA 2","222 SHOP RAMAH","223 ANTANIMENA","224 EP AMPASAPITO 2",
+  "225 EP ITAOSY CITE","226 CC BEHORIRIKA","227 EP CC AMBOHITRARAHABA","228 EP CC AMPEFILOHA",
+  "229 EP CC ANTOHOMADINIKA","230 EP CC AMBOHIMANARINA","231 EP CC ALAKAMISY","232 EP CC ANALAMAHITSY",
+  "233 EP CC ANOSY","234 ANDRAVOAHANGY 2","235 BEHORIRIKA 2","236 67 ANKASINA","237 LE GLACIER",
+  "238 TAN_SHP_MERCATU","239 TAN_CLC_CAVALLO","241 TAN_CLC_IVATO_MARCHE","INDEPENDANCE","CALISTE",
+  "CHEZ PAPA","AMBATOLAMPY","ANTSIRABE SCORE","ANTSIRABE AMBANITSENA","ANTSIRABE FIRST IMMO",
+  "ANTSIRABE EX-AGENCE","FIANARANTSOA 1","FIANARANTSOA 2","TULEAR TERASSE","ANALAVORY",
+  "TSIROANOMANDIDY","MORONDAVA","MORAMANGA","AMBATONDRAZAKA","STOCK TANJOMBATO","STOCK INDEP",
+  "ATELIER","MERCATU","ZOKY BE","CARLTON","MALAISIE","1 - BAR PYLONE","104 - PLR OUEST ANOSIZATO",
+  "108 - CC BEMASOANDRO","109 - BAR IAVOLOHA","11 - BAR JAONA","111 - CC TSIMBAZAZA","112 - BAR DIAMONDRA",
+  "ANDRAMAMY","115 - BAR TSIMANAVAKA","118 - BAR DANY","119 - BAR LANTO 2","120 - CC SABOTSY NAMEHANA",
+  "123 - BAR NATIONAL","124 - CC ANKADIFOTSY","127 - BAR LUCAME","128 - CLUB 43","129 - BAR 3T",
+  "13 - SALLE ANOSIZATO 2","130 - BAR MANDOVASOA","131 - PLR AMBATOMARO","139 - BAR TSIMANAVAKA 2",
+  "147 - BAR ANOSIAVARATRA","149 - BAR CENTRE","151 - BAR MANAMBINTSOA","154 - BAR TOKY","155 - BAR SOLEIL",
+  "156 - BAR LUCIE","167 - BAR LA TERASSE","168 - BAR ANKADINDRAMAMY","169 - BAR BARCELONE","17 - MAISON THB",
+  "170 - BAR THERESE","172 - BAR LAZAINA","176 - BAR MAMIHAJA","177 - BAR ANTANAMBAO","179 - BAR MAMINIRINA",
+  "18 - BAR ANATIHAZO","183 - BAR KAPSILY","184 - BAR NAMBININA","185 - BAR RICKY","186 - BAR AMPEFILOHA",
+  "188 - SALLE ELLA","191 - SALLE UDEAL","192 - BAR AMBOHIMANAMBOLA","194 - BAR TOJO 2","196 - BAR LILIANE",
+  "199 - BAR 9183","200 - BAR AMPASANIMALO","202 - BAR VOAHIRANA","G6 - SALLE ILAINA","G7 - SALLE LIANTSOA",
+  "G9 - SALLE ANDRY","GAMO","MANGO 4","TAN-SAL-DINA","47 - IVATO FRET","48 - BAR CENTRE 2",
+  "501 - MAJ BAR PALOMA","505 - MAJ BAR ROXETTE","509 - MAJ BAR SOLO","511 - MAJ BAR CHAMPION",
+  "512 - MAJ BAR AINA","53 - CYBER ROVANIAINA","56 - GTN IMERITSIATOSIKA","58 - BAR STOCK","59 - BAR OLY",
+  "68 - BAR RANTO","70 - PLR ALASORA","74 - CC ANDREFANAMBOHIJANAHARY","75 - BAR AMBATOMAINTY",
+  "79 - PLR NANISANA","8 - BAR ANJARAMASOANDRO","80 - CC ANKATSO","81 - CC LALA","82 - CC AMBOHIDRATRIMO",
+  "84 - BAR FARA SY TOTO","86 - CC ANKARAOBATO","87 - CC CHINOIS ISOTRY","88 - CC BETONGOLO","90 - PLR NY HAVANA",
+  "92 - GTN PLR ANJOMAKELY","95 - BAR SOAVINA","97 - BAR NIRINA","Allegriah","ANDOTSOA",
+  "ANJANAHARY 1","ANOSIBE TSENA","BAR ANKASINA","BAR MAHASOA 67HA","BAR SUPERS 7","clc ambohimiandra",
+  "France","G002 - BAR BB2 MANJAKARAY","G008 - BAR ROVA20_n","G10 - SALLE NGIAMA","G11 - BAR MIARY",
+  "G12 - SALLE JULIA","G13 - SALLE LUCIA2","G15 - EPI TOKY","G16 - BAR STEPHANIE 2","G17 - SALLE NEKENA",
+  "G18 - BAR ROUGE_1_n","G19 - BAR MANGO4_n","G2 - SALLE MIARO","G20 - SALLE 3 FRERES","G21 - SALLE FAHASOAVANA",
+  "G23 - SAL_TSENA_ANDRAMAMY_n","G24 - TAN_SAL_RAHARISOA","G25 - CLC SOAVINANDRIANA","205 - BAR MAHAFINARITRA",
+  "207 - BAR NAH","21 - BAR TRIMONALA","210 - BAR NANTENAINA","211 - BAR ALBA","212 - BAR SEHENO",
+  "214 - BAR TIAVINA","215 - BAR HERISOA","216 - BAR FAHASOAVANTSOA","217 - BAR BRAVO 4","219 - BAR MEMI",
+  "221 - BAR ANJANAHARY 2","222 - BAR AVANA","223 - BAR DU MONDE","224 - BAR 7M","225 - BAR ZO LAHATRA",
+  "226 - BAR BOB","227 - BAR MAHAVANTANA","228 - BAR MAHAZATRA","23 - CC ANTEHIROKA","230 - BAR LAPASOA",
+  "232 - BAR DADDY","233 - BAR IKOPA","235 - BAR ZAVALINE","236 - BAR TSARADIVAY","237 - BAR MAHAY",
+  "238 - TAN_CLC_SAHAZA","239 - BAR CHEMIN DE TRAVERS","240 - TAN_CLC_TSENAN_KAMO_4_n","241 - CYBER ATLAS",
+  "242 - TAN_BAR_MIRI_n","247 - BAR FIATLUX","248 - BAR ZANDRY KELY","249 - TAN_CLC_TALATAMATY20_n",
+  "250 - BAR AMANDE","251 - BAR MAMISEY","252 - BAR HENINKAJA","254 - BAR MIHARISOA",
+  "26 - TAN KIOSQUE ANJANAHARY","30 - BAR LALAINA","35 - BAR FRANCE","36 - BAR RICHARD",
+  "39 - BAR ROVA","41 - BAR RAMAROVAVY","42 - BAR DANIEL","46 - GTN ANALAVORY",
+  "G3 - SALLE AMBOHITRY NY MANGA","G4 - BAR LULU","BAR Denise","bar anony","bar tsiry",
+  "BAR BENITO","BAR RANDY","ELIANE","MANANDRIANA","201-BAR PAPI",
+  "TALATA VOLONONDRY","JAMES BOND","TSIADANA","LANTO","MINI-MARKET","MANOU N"
+];
+
+const MACHINES = (() => {
+  const m = ["GROUPE","ROULETTE 1","ROULETTE 2","ROULETTE 3","ROULETTE 4","ROULETTE 5"];
+  for (let i = 1; i <= 300; i++) m.push("MAS " + i);
+  return m;
+})();
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let currentTech = "";
+let pannes = [];
+let deferredInstallPrompt = null;
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+window.addEventListener('load', () => {
+  // Set today's date
+  const today = new Date();
+  const y = today.getFullYear(), m = String(today.getMonth()+1).padStart(2,'0'), d = String(today.getDate()).padStart(2,'0');
+  document.getElementById('inpDate').value = `${y}-${m}-${d}`;
+
+  // Setup search combos
+  setupCombo('inpSalle', 'salleDropdown', SALLES);
+  setupCombo('inpMachine', 'machineDropdown', MACHINES);
+
+  // Enter key on login
+  document.getElementById('inpPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // Scroll to top button
+  document.getElementById('mainContent').addEventListener('scroll', () => {
+    const st = document.getElementById('mainContent').scrollTop;
+    document.getElementById('scrollTop').classList.toggle('visible', st > 200);
+  });
+
+  // PWA install
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    document.getElementById('installBanner').style.display = 'flex';
+  });
+  document.getElementById('btnInstall').addEventListener('click', () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.then(() => {
+        document.getElementById('installBanner').style.display = 'none';
+        deferredInstallPrompt = null;
+      });
+    }
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#salleCombo')) closeDropdown('salleDropdown');
+    if (!e.target.closest('#machineCombo')) closeDropdown('machineDropdown');
+  });
+});
+
+// ════════════════════════════════════════
+// SEARCH COMBO
+// ════════════════════════════════════════
+function setupCombo(inputId, dropdownId, list) {
+  const inp = document.getElementById(inputId);
+  const dd = document.getElementById(dropdownId);
+
+  inp.addEventListener('input', () => {
+    const q = inp.value.trim().toLowerCase();
+    const filtered = q ? list.filter(s => s.toLowerCase().includes(q)) : list;
+    renderDropdown(dd, filtered, inp);
+    dd.classList.toggle('open', filtered.length > 0 && q.length > 0);
+  });
+
+  inp.addEventListener('focus', () => {
+    if (inp.value.length === 0) {
+      renderDropdown(dd, list.slice(0, 30), inp);
+      dd.classList.add('open');
+    }
+  });
+}
+
+function renderDropdown(dd, items, inp) {
+  dd.innerHTML = items.slice(0, 50).map(item =>
+    `<div class="dropdown-item" onclick="selectItem('${item.replace(/'/g,"\\'")}', '${inp.id}', '${dd.id}')">${item}</div>`
+  ).join('');
+}
+
+function selectItem(value, inputId, dropdownId) {
+  document.getElementById(inputId).value = value;
+  closeDropdown(dropdownId);
+}
+
+function closeDropdown(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function clearSalle() {
+  document.getElementById('inpSalle').value = '';
+  closeDropdown('salleDropdown');
+}
+
+function clearMachine() {
+  document.getElementById('inpMachine').value = '';
+  closeDropdown('machineDropdown');
+}
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+function doLogin() {
+  const tech = document.getElementById('selTechnicien').value;
+  const pwd = document.getElementById('inpPassword').value;
+
+  if (!tech) { showToast('⚠️ Sélectionner un technicien', 'error'); return; }
+  if (!pwd) { showToast('⚠️ Entrer le mot de passe', 'error'); return; }
+  if (USERS[tech] !== pwd) { showToast('❌ Mot de passe incorrect', 'error'); document.getElementById('inpPassword').value = ''; return; }
+
+  currentTech = tech;
+  document.getElementById('headerTech').textContent = tech;
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('mainScreen').classList.add('active');
+  showToast(`👋 Bonjour ${tech} !`, 'success');
+}
+
+function doLogout() {
+  currentTech = "";
+  pannes = [];
+  document.getElementById('inpPassword').value = '';
+  document.getElementById('selTechnicien').value = '';
+  document.getElementById('mainScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  renderPannes();
+}
+
+// ════════════════════════════════════════
+// PANNES
+// ════════════════════════════════════════
+function ajouterPanne() {
+  const categorie = document.getElementById('selCategorie').value;
+  const dateVal = document.getElementById('inpDate').value;
+  const salle = document.getElementById('inpSalle').value.trim();
+  const machine = document.getElementById('inpMachine').value.trim();
+  const description = document.getElementById('inpDescription').value.trim();
+  const remarque = document.getElementById('inpRemarque').value.trim();
+
+  if (!salle || !description) {
+    showToast('⚠️ Salle et description obligatoires', 'error');
+    return;
+  }
+
+  // Format date dd/MM/yy like PC app
+  let dateFormatted = '';
+  if (dateVal) {
+    const parts = dateVal.split('-');
+    const y2 = parts[0].slice(2);
+    dateFormatted = `${parts[2]}/${parts[1]}/${y2}`;
+  }
+
+  pannes.push({ categorie, date: dateFormatted, salle, machine, description, remarque });
+  renderPannes();
+
+  document.getElementById('inpDescription').value = '';
+  document.getElementById('inpRemarque').value = '';
+  closeDropdown('salleDropdown');
+  closeDropdown('machineDropdown');
+
+  showToast('✅ Intervention ajoutée', 'success');
+
+  // Scroll to list
+  setTimeout(() => {
+    document.querySelector('.section-card:last-child').scrollIntoView({ behavior: 'smooth' });
+  }, 200);
+}
+
+function supprimerPanne(index) {
+  pannes.splice(index, 1);
+  renderPannes();
+}
+
+function renderPannes() {
+  const container = document.getElementById('pannesList');
+  const badge = document.getElementById('badgeCount');
+  badge.textContent = pannes.length;
+
+  if (pannes.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>Aucune intervention ajoutée</p></div>`;
+    return;
+  }
+
+  container.innerHTML = pannes.map((p, i) => `
+    <div class="panne-item">
+      <div class="panne-row1">
+        <span class="panne-salle">${p.salle}</span>
+        <span class="panne-machine">${p.machine || '—'}</span>
+      </div>
+      <div class="panne-desc">${p.description}</div>
+      <div class="panne-meta">
+        <span>📅 ${p.date}</span>
+        ${p.categorie ? `<span>🏷️ ${p.categorie}</span>` : ''}
+        ${p.remarque ? `<span>💬 ${p.remarque}</span>` : ''}
+      </div>
+      <div style="text-align:right;margin-top:8px">
+        <button class="btn btn-danger" onclick="supprimerPanne(${i})">Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════
+// ENREGISTRER
+// ════════════════════════════════════════
+async function enregistrerTout() {
+  if (pannes.length === 0) {
+    showToast('⚠️ Aucune intervention à enregistrer', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnEnregistrer');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
+
+  const payload = pannes.map(p => ({
+    categorie: p.categorie,
+    date: p.date,
+    salle: p.salle,
+    machine: p.machine,
+    description: p.description,
+    remarque: p.remarque,
+    technicien: currentTech
+  }));
+
+  try {
+    // Use no-cors mode (same as PC behavior with Google Apps Script)
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // no-cors means we can't read the response, but if no error thrown, assume success
+    showToast(`✅ ${pannes.length} intervention(s) enregistrée(s) !`, 'success');
+    pannes = [];
+    renderPannes();
+    document.getElementById('mainContent').scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    showToast('❌ Erreur réseau. Vérifie ta connexion.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✅ Valider et Enregistrer';
+  }
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function scrollToTop() {
+  document.getElementById('mainContent').scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
