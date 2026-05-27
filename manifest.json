@@ -9,14 +9,16 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192x192/f97316/ffffff?text=SM",
+      "src": "https://herilalarakotoarimanana-design.github.io/suivi-maintenance/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://via.placeholder.com/512x512/f97316/ffffff?text=SM",
+      "src": "https://herilalarakotoarimanana-design.github.io/suivi-maintenance/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
